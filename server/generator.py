@@ -6,7 +6,7 @@ import requests
 from dotenv import load_dotenv
 
 load_dotenv()
-api_key = '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'
+api_key = 'ENTER-YOUR-KEY'
 
 SYSTEM_PROMPT = """
 You are a thought expander. Given an idea, break it into logical branches:
