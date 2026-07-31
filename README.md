@@ -1,70 +1,55 @@
-# 🧠 EchoFrame — AI-Powered Recursive Thought Graph (OpenRouter Version)
+# EchoFrame
 
-EchoFrame is a full-stack project that visualizes how ideas evolve. Starting from a single thought, it recursively expands possible consequences, counterpoints, and questions — using a free AI API and a dynamic graph UI.
+Start with one idea, then keep asking "and then what?". EchoFrame takes a single statement, asks a
+model for its consequences, counterpoints and open questions, and renders the result as a graph you
+can keep expanding by clicking any node.
 
-![echo-frame-preview](Example.png)
+![EchoFrame](Example.png)
 
----
+FastAPI backend, D3.js frontend, and OpenRouter for the model calls.
 
-## 🚀 Features
+## Running it
 
-- 💡 Recursive AI-driven thought expansion
-- 🌐 No install required — uses OpenRouter API (free-tier GPT access)
-- 🧠 Graph structure with click-to-expand idea nodes
-- ⚡ FastAPI backend + D3.js frontend
-- 🎯 Ideal for thought maps, debate tools, strategy modeling, and creativity
-
----
-
-## 🧱 Project Structure
-
-```bash
-echoframe/ 
-├── server/ 
-│ ├── app.py # FastAPI app (API + frontend hosting) 
-│ ├── generator.py # AI-powered thought expansion (OpenRouter)
-│ └── graph.py # Graph logic (nodes + branches)
-├── frontend/
-│ └── index.html # Interactive D3.js graph UI
+```sh
+pip install -r requirements.txt
 ```
----
 
-## 🔧 Requirements
+Set an [OpenRouter](https://openrouter.ai/keys) key — the free tier is enough:
 
-### 🐍 Backend
-```bash
-pip install fastapi uvicorn python-dotenv requests
+```sh
+export OPENROUTER_API_KEY=sk-or-...
 ```
-## 🌐 Frontend
-No build tools needed — index.html runs in any browser.
 
-## 🛡️ Free API Setup (OpenRouter)
-- Go to https://openrouter.ai/keys
+The backend imports its siblings by bare module name (`from graph import ThoughtGraph`), so it has
+to be started from inside `server/`:
 
- - Sign in and copy your free API key
-
-## ▶️ Running the App
-Start the backend:
-
-```bash
+```sh
+cd server
 uvicorn app:app --reload
 ```
-Open your browser:
-```bash
-http://localhost:8000
+
+Then open <http://localhost:8000>. FastAPI serves the frontend itself, so there is nothing to build
+and no second process to run.
+
+## Layout
+
 ```
-Click on nodes to expand new ideas!
+server/app.py         FastAPI app; serves the API and the frontend
+server/generator.py   Prompts OpenRouter for expansions of a node
+server/graph.py       Node and edge bookkeeping
+frontend/index.html   D3.js force-directed graph, no build step
+```
 
-## 🧪 Example Thought Map
-“AI will replace most jobs”
+Click a node and the frontend posts it back to the API, which asks the model for the next layer and
+returns the new nodes and edges to splice into the graph.
 
-- Universal Basic Income may become necessary
-- Ethical concerns over replacing human labor
-- AI may enhance job creativity, not replace it
-- Regulation will lag behind adoption
+## Notes
 
-## 💡 Future Ideas
-- Add personas (Philosopher, Optimist, Critic)
-- Export thought graphs to .json or .graphml
-- Add GPT-4, Claude, or Llama2 model switching
-- Publish a public version with authentication
+Each expansion is a fresh API call, so a deep graph is a lot of calls — worth watching if you are
+past the free tier. There is no persistence: the graph lives in the server process, and restarting
+`uvicorn` clears it. Node text comes straight from the model, so the usual caveat applies — it is a
+brainstorming aid, not a source.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
